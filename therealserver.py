@@ -2,6 +2,8 @@ import cherrypy
 import random
 import psycopg2
 import libpg
+import re
+import threading
 
 vowels = "aeiou"
 consonants = "bcdfgjklmnprstvz"
@@ -29,11 +31,33 @@ def create_word():
         w += random.choice(vowels)
         
     return w
+    
+def format_url(url):
+    """
+        converts the domain name part of the url to lowercase 
+    """
+    start_index = 0
+    if url.lower().startswith('http://'):
+        start_index = 7
+    end_index = url.find("/", start_index)
+    return url[:end_index].lower() + url[end_index:]
+    
+def compose_url(short, index):
+    return "%s%d" % (short, index)
 
 class URLShortener(object):
     def __init__(self, config):
         self.config = config
         self.pg = libpg.PG(**config['pg'])
+        # self.lock = threading.Lock()
+
+    def _shorten(self, url):
+        url = format_url(url)
+        existing = self.pg.getOne("SELECT short, index FROM urls WHERE url=%s", [url])
+        if existing:
+            return "%s%d" % (existing['short'], existing['index'])
+            
+        
         
     @cherrypy.expose
     def index(self, **kargs):
@@ -44,7 +68,3 @@ class URLShortener(object):
         pass
         
 config = eval(open('config.py', 'rb').read())
-
-pg = libpg.PG(password='log15(225)=2')
-# pg = libpg.PG()
-print pg.getList("SELECT 1")
