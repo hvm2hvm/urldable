@@ -53,18 +53,27 @@ class URLShortener(object):
 
     def _shorten(self, url):
         url = format_url(url)
+        # if url exists use existing shortened url
         existing = self.pg.getOne("SELECT short, index FROM urls WHERE url=%s", [url])
         if existing:
             return "%s%d" % (existing['short'], existing['index'])
             
-        
-        
+        # if not, create a new short url
+        short = create_word() # create a random readable word
+        # check if word was already created
+        index = self.pg.get("SELECT max(index) FROM urls WHERE short=%s", [short])
+        if not index:
+            index = 0
+        self.pg.execute('''INSERT INTO urls(short, "index", url, last_accessed)
+                            VALUES (%s, %s, %s, now())
+                        ''', [short, index+1, url])
+                        
     @cherrypy.expose
     def index(self, **kargs):
         pass
         
     @cherrypy.expose
     def shorten(self, url):
-        pass
+        self._shorten(url)
         
 config = eval(open('config.py', 'rb').read())
