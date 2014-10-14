@@ -1,6 +1,7 @@
 import cherrypy
 import random
 import psycopg2
+import libpg
 
 vowels = "aeiou"
 consonants = "bcdfgjklmnprstvz"
@@ -30,8 +31,9 @@ def create_word():
     return w
 
 class URLShortener(object):
-    def __init__(self):
-        pass
+    def __init__(self, config):
+        self.config = config
+        self.pg = libpg.PG(**config['pg'])
         
     @cherrypy.expose
     def index(self, **kargs):
@@ -41,3 +43,8 @@ class URLShortener(object):
     def shorten(self, url):
         pass
         
+config = eval(open('config.py', 'rb').read())
+
+pg = libpg.PG(password='log15(225)=2')
+# pg = libpg.PG()
+print pg.getList("SELECT 1")
