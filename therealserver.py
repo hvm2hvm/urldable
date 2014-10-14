@@ -65,15 +65,23 @@ class URLShortener(object):
         if not index:
             index = 0
         self.pg.execute('''INSERT INTO urls(short, "index", url, last_accessed)
-                            VALUES (%s, %s, %s, now())
+                            VALUES (%s, %s, %s, extract(epoch from now()))
                         ''', [short, index+1, url])
                         
     @cherrypy.expose
     def index(self, **kargs):
-        pass
+        return """
+        <html>
+        <body>
+            
+        </body>
+        </html>
+        """
         
     @cherrypy.expose
     def shorten(self, url):
         self._shorten(url)
         
 config = eval(open('config.py', 'rb').read())
+shortener_server = URLShortener(config)
+shortener_server._shorten("http://google.com/asdfuKJHASDKcasd/")

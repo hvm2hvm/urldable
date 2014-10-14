@@ -47,17 +47,22 @@ class PG(object):
             log("failed to connect %s:%s to %s:%s: %s" % (self.params['user'], self.params['password'], 
                 self.params['host'], self.params['port'], e))
         
-    def execute(self, query, params, commit):
+    def execute(self, query, params, commit=1):
         retries = 3
         while retries > 0:
             try:
                 self.cur.execute(query, params)
                 if commit:
                     self.conn.commit()
-                break
-            except:
-                self.connect
+                return
+            except Exception as e:
                 retries -= 1
+                log("query failed: [%s] with params %s" % (query, params))
+                log("   exception: %s" % (e))
+                log("retrying, %d attempts left" % (retries))
+                self.connect()
+                
+        log("failed after 3 retries")
         
     def get(self, query, params=[], commit=1):
         self.execute(query, params, commit)
