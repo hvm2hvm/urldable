@@ -83,5 +83,8 @@ class URLShortener(object):
         self._shorten(url)
         
 config = eval(open('config.py', 'rb').read())
-shortener_server = URLShortener(config)
-shortener_server._shorten("http://google.com/asdfuKJHASDKcasd/")
+
+cherrypy.config.update({
+    "server.socket_port": 8000,
+})
+cherrypy.quickstart(URLShortener(config))
