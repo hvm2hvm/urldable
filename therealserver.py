@@ -43,7 +43,10 @@ def format_url(url):
     return url[:end_index].lower() + url[end_index:]
     
 def compose_url(short, index):
-    return "%s%d" % (short, index)
+    if index > 1:
+        return "%s%d" % (short, index)
+    else:
+        return short
 
 class URLShortener(object):
     def __init__(self, config):
@@ -56,7 +59,7 @@ class URLShortener(object):
         # if url exists use existing shortened url
         existing = self.pg.getOne("SELECT short, index FROM urls WHERE url=%s", [url])
         if existing:
-            return "%s%d" % (existing['short'], existing['index'])
+            return compose_url(existing['short'], existing['index'])
             
         # if not, create a new short url
         short = create_word() # create a random readable word
@@ -64,10 +67,14 @@ class URLShortener(object):
         index = self.pg.get("SELECT max(index) FROM urls WHERE short=%s", [short])
         if not index:
             index = 0
-        self.pg.execute('''INSERT INTO urls(short, "index", url, last_accessed)
+            
+        if self.pg.execute('''INSERT INTO urls(short, "index", url, last_accessed)
                             VALUES (%s, %s, %s, extract(epoch from now()))
-                        ''', [short, index+1, url])
-                        
+                        ''', [short, index+1, url]):
+            return compose_url(short, index+1)
+        else:
+            return None
+    
     @cherrypy.expose
     def index(self, **kargs):
         return """
@@ -79,18 +86,44 @@ class URLShortener(object):
         </head>
         <body>
             <div id="central">
-                <input type="text" name="url" id="urlbox" />
-                <button name="shorten" id="button">shorten</button> <br />
+                <div id="query">
+                    <input type="text" name="url" id="urlbox" />
+                    <button name="shorten" id="button" onclick="do_shorten()">shorten</button>
+                </div> <br />
                 <div id="results">
                 </div>
             </div>
         </body>
         </html>
         """
-        
+       
     @cherrypy.expose
     def shorten(self, url):
-        self._shorten(url)
+        print "url = [%s]" % (url)
+        short = self._shorten(url)
+        print "short url = [%s]" % (short)
+        
+        if short is None:
+            return """
+                The service couldn't create a short url for some reason, sorry.
+            """
+        
+        if len(url) > 30:
+            url = url[:17] + "..." + url[-10:]
+        
+        return """
+            <span id="result">Shortened to [
+                    <span id=\"short\" title="you can copy now">http://hvm.pw/%s</span> 
+                ] <br />
+                from url [ %s ].<br/>
+                (hover over url to select it)
+            </span>
+            <script>
+                $("#short").hover(function(){
+                    SelectText("short");
+                });
+            </script>
+        """ % (short, url)
         
 config = eval(open('config.py', 'rb').read())
 

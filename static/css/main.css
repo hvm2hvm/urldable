@@ -1,5 +1,5 @@
 body {
-    background-color: #55aaed;
+    background-color: #7be;
 }
 
 #urlbox {
@@ -15,4 +15,17 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%)
+}
+
+#query {
+    width: 255px;
+    margin: 0 auto;
+}
+
+#result {
+    text-align: center;
+}
+
+#short {
+    color: #f00;
 }

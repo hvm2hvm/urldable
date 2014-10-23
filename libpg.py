@@ -30,10 +30,10 @@ class PG(object):
         self.connect()
         
     def connect(self):
-        try:
-            self.cur.close()
-        except:
-            pass
+        # try:
+            # self.cur.close()
+        # except:
+            # pass
         try:
             self.conn.close()
         except:
@@ -49,51 +49,49 @@ class PG(object):
         
     def execute(self, query, params, commit=1):
         retries = 3
-        while retries > 0:
+        while True:
             try:
                 self.cur.execute(query, params)
                 if commit:
                     self.conn.commit()
-                return
+                return True
             except Exception as e:
                 retries -= 1
+                if retries <= 0:
+                    break
                 log("query failed: [%s] with params %s" % (query, params))
                 log("   exception: %s" % (e))
                 log("retrying, %d attempts left" % (retries))
                 self.connect()
                 
         log("failed after 3 retries")
+        return False
         
     def get(self, query, params=[], commit=1):
-        self.execute(query, params, commit)
-        row = self.cur.fetchone()
+        row = self.execute(query, params, commit) and self.cur.fetchone()
         if row:
             return row[0]
         return None
         
     def getOne(self, query, params=[], commit=1):
-        self.execute(query, params, commit)
-        return self.cur.fetchone()
+        return self.execute(query, params, commit) and self.cur.fetchone()
         
     def getMany(self, query, count, params=[], commit=1):
-        self.execute(query, params, commit)
-        rows = self.cur.fetchall()
+        rows = self.execute(query, params, commit) and self.cur.fetchall()
         if rows:
             return rows[:count]
         else:
             return None
             
     def getList(self, query, params=[], commit=1):
-        self.execute(query, params, commit)
-        rows = self.cur.fetchall()
+        rows = self.execute(query, params, commit) and self.cur.fetchall()
         if rows:
             return [x[0] for x in rows]
         else:
             return None
         
     def getAll(self, query, params=[], commit=1):
-        self.execute(query, params, commit)
-        rows = self.cur.fetchall()
+        rows = self.execute(query, params, commit) and self.cur.fetchall()
         if rows:
             return rows
         else:
