@@ -1,0 +1,18 @@
+body {
+    background-color: #55aaed;
+}
+
+#urlbox {
+    width: 170px;
+}
+
+#button {
+    width: 80px;
+}
+
+#central {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%)
+}

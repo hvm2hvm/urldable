@@ -72,8 +72,18 @@ class URLShortener(object):
     def index(self, **kargs):
         return """
         <html>
+        <head>
+            <script src="/static/js/jquery-min.js"></script>
+            <script src="/static/js/shortener.js"></script>
+            <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+        </head>
         <body>
-            
+            <div id="central">
+                <input type="text" name="url" id="urlbox" />
+                <button name="shorten" id="button">shorten</button> <br />
+                <div id="results">
+                </div>
+            </div>
         </body>
         </html>
         """
