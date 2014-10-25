@@ -81,6 +81,8 @@ class URLShortener(object):
                 $("#short").hover(function(){
                     SelectText("short");
                 });
+                SelectText("short");
+                $("#urlbox").blur();
             </script>
         """ % (self.config['server']['hostname'], short, url)
         

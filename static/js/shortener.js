@@ -47,3 +47,25 @@ function do_shorten() {
         }
     });
 }
+
+$(document).ready(function() {
+    $("body").keydown(function(e){
+        // $("#urlbox").focus();
+        // $("#urlbox").val("");
+        console.log("down: " + e.which + " " + e.ctrlKey);
+        if (e.which == 86 && e.ctrlKey) { // CTRL+V
+            $("#urlbox").focus();
+            $("#urlbox").val("");
+        }
+    });
+    $("body").keypress(function(e) {
+        console.log("press: " + e.which + " " + e.ctrlKey);
+    });
+    $("body").keyup(function(e){
+        console.log("up: " + e.which + " " + e.ctrlKey);
+        if (e.which == 86 && e.ctrlKey) { // CTRL+V
+            do_shorten();
+        }
+    });
+    
+});
