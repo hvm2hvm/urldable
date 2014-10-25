@@ -5,48 +5,7 @@ import libpg
 import re
 import threading
 
-vowels = "aeiou"
-consonants = "bcdfgjklmnprstvz"
-joinable_consonants = "bcdfgkpt" # can be followed by 'l' or 'r'
-# joinable_syllables = "" # can be joined but in different syllables (kloNDike)
-
-def create_word():
-    two_start_cons = random.random() > 0.5
-    ends_in_vowel = random.random() > 0.5
-    
-    w = ""
-    
-    # first syllable
-    if two_start_cons:
-        w += random.choice(joinable_consonants) + random.choice("lr")
-    else:
-        w += random.choice(consonants)
-    w += random.choice(vowels) + random.choice(consonants) * two_start_cons * (random.random() > 0.5)
-    
-    # second syllable
-    w += random.choice(consonants)
-    w += random.choice(vowels)
-    w += random.choice(consonants)
-    if ends_in_vowel:
-        w += random.choice(vowels)
-        
-    return w
-    
-def format_url(url):
-    """
-        converts the domain name part of the url to lowercase 
-    """
-    start_index = 0
-    if url.lower().startswith('http://'):
-        start_index = 7
-    end_index = url.find("/", start_index)
-    return url[:end_index].lower() + url[end_index:]
-    
-def compose_url(short, index):
-    if index > 1:
-        return "%s%d" % (short, index)
-    else:
-        return short
+from liburldable import compose_url, decompose_url, create_word, format_url
 
 class URLShortener(object):
     def __init__(self, config):
@@ -113,7 +72,7 @@ class URLShortener(object):
         
         return """
             <span id="result">Shortened to [
-                    <span id=\"short\" title="you can copy now">http://hvm.pw/%s</span> 
+                    <span id=\"short\" title="you can copy now">http://%s/%s</span> 
                 ] <br />
                 from url [ %s ].<br/>
                 (hover over url to select it)
@@ -123,11 +82,21 @@ class URLShortener(object):
                     SelectText("short");
                 });
             </script>
-        """ % (short, url)
+        """ % (self.config['server']['hostname'], short, url)
+        
+    @cherrypy.expose
+    def default(self, *args):
+        if len(args) > 1:
+            return "invalid url: [%s]" % ('/'.join(args))
+            
+        short, index = decompose_url(args[0])
+        if short is None:
+            return "invalid url: [%s]" % (args[0])
+            
+        url = self.pg.get("SELECT url FROM urls WHERE short = %s AND index = %s", [short, index])
+        # return "redirect url: [%s]" % (url)
+        raise cherrypy.HTTPRedirect(url)
         
 config = eval(open('config.py', 'rb').read())
 
-cherrypy.config.update({
-    "server.socket_port": 8000,
-})
-cherrypy.quickstart(URLShortener(config))
+cherrypy.quickstart(URLShortener(config), config="cherrypy.conf")
