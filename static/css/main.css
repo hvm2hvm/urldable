@@ -2,12 +2,29 @@ body {
     background-color: #7be;
 }
 
+input[type=text] {
+    border: solid 2px #87f;
+    border-radius: 5px;
+    height: 46px;
+    font-size: 30px;
+    padding: 7px;
+}
+
+button {
+    border: solid 2px #87f;
+    border-radius: 5px;
+    height: 46px;
+    font-size: 24px;
+    
+}
+
 #urlbox {
-    width: 170px;
+    width: 300px;
 }
 
 #button {
-    width: 80px;
+    width: 100px;
+    vertical-align: top;
 }
 
 #central {
@@ -17,15 +34,21 @@ body {
     transform: translate(-50%, -50%)
 }
 
+#title {
+    text-align: center;
+    font-size: 32px;
+}
+
 #query {
-    width: 255px;
+    width: 410px;
     margin: 0 auto;
 }
 
-#result {
+#results {
     text-align: center;
 }
 
 #short {
     color: #f00;
+    font-size: 24px;
 }

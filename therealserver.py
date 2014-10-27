@@ -45,6 +45,9 @@ class URLShortener(object):
         </head>
         <body>
             <div id="central">
+                <div id="title">
+                    <span>Press CTRL+V</span>
+                </div> <br />
                 <div id="query">
                     <input type="text" name="url" id="urlbox" />
                     <button name="shorten" id="button" onclick="do_shorten()">shorten</button>

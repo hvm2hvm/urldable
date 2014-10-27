@@ -41,6 +41,7 @@ function do_shorten() {
         dataType: "html",
         success: function(data) {
             $("#results").html(data);
+            $("#title").html("Press CTRL+C");
         },
         error: function() {
             $("#results").html("<span>There was an error with the request</span>");
@@ -65,6 +66,8 @@ $(document).ready(function() {
         console.log("up: " + e.which + " " + e.ctrlKey);
         if (e.which == 86 && e.ctrlKey) { // CTRL+V
             do_shorten();
+        } else if (e.which == 67 && e.ctrlKey) {
+            $("#title").html("You can now use the short URL");
         }
     });
     
