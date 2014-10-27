@@ -67,7 +67,7 @@ $(document).ready(function() {
         if (e.which == 86 && e.ctrlKey) { // CTRL+V
             do_shorten();
         } else if (e.which == 67 && e.ctrlKey) {
-            $("#title").html("You can now use the short URL");
+            $("#title").html("You can now use the short URL <br />CTRL+V again for a new link");
         }
     });
     
