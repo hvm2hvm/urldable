@@ -4,6 +4,7 @@ import psycopg2
 import libpg
 import re
 import threading
+import time
 
 from liburldable import compose_url, decompose_url, create_word, format_url
 
@@ -11,14 +12,47 @@ class URLShortener(object):
     def __init__(self, config):
         self.config = config
         self.pg = libpg.PG(**config['pg'])
+        self.limit_data = {
+            '_shorten_existing': {},
+            '_shorten_new': {},
+            '_access': {},
+        }
+        # per minute
+        self.limit_values = {
+            '_shorten_existing': 20,
+            '_shorten_new': 10,
+            '_access': 30,
+        }
+        
         # self.lock = threading.Lock()
 
+    def _limit_requests(self, location):
+        ip = cherrypy.request.headers['X-Forwarded-For']
+        ts = int(time.time())
+        
+        limit = self.limit_values[location]
+
+        data = self.limit_data[location]
+        
+        if ip in data:
+            new_data = filter(lambda x: x >= ts - 60, data[ip])
+            new_data.append(ts)
+            data[ip] = new_data
+            if len(new_data) >= limit:
+                raise cherrypy.HTTPError(400, message="Too many requests, try again later...")
+        else:
+            data[ip] = [ts]
+
     def _shorten(self, url):
+        self._limit_requests('_shorten_existing')
+    
         url = format_url(url)
         # if url exists use existing shortened url
         existing = self.pg.getOne("SELECT short, index FROM urls WHERE url=%s", [url])
         if existing:
             return compose_url(existing['short'], existing['index'])
+            
+        self._limit_requests('_shorten_new')
             
         # if not, create a new short url
         short = create_word() # create a random readable word
@@ -46,7 +80,7 @@ class URLShortener(object):
         <body>
             <div id="central">
                 <div id="title">
-                    <span>Press CTRL+V</span>
+                    <span>Press CTRL+V to shorten your URL</span><br />
                 </div> <br />
                 <div id="query">
                     <input type="text" name="url" id="urlbox" />
@@ -58,12 +92,27 @@ class URLShortener(object):
         </body>
         </html>
         """
-       
+        
+    @cherrypy.expose
+    def _stats(self):
+        url_count = self.pg.get("SELECT count(url) FROM urls")
+        access_count = self.pg.get("SELECT count(*) FROM accesses")
+        unique_ip_count = self.pg.get("SELECT count(ip) FROM accesses")
+        return """
+            <html>
+                <head>
+                </head>
+                <body>
+                    <span>Number of URLs shortened: %d</span><br />
+                    <span>Number of accesses: %d</span><br />
+                    <span>Number of unique IPs: %d</span><br />
+                </body>
+            </html>
+        """ % (url_count, access_count, unique_ip_count)
+        
     @cherrypy.expose
     def shorten(self, url):
-        print "url = [%s]" % (url)
         short = self._shorten(url)
-        print "short url = [%s]" % (short)
         
         if short is None:
             return """
@@ -91,6 +140,9 @@ class URLShortener(object):
         
     @cherrypy.expose
     def default(self, *args):
+        ip = cherrypy.request.headers['X-Forwarded-For']
+        self._limit_requests('_access')
+    
         if len(args) > 1:
             return "invalid url: [%s]" % ('/'.join(args))
             
@@ -98,8 +150,16 @@ class URLShortener(object):
         if short is None:
             return "invalid url: [%s]" % (args[0])
             
-        url = self.pg.get("SELECT url FROM urls WHERE short = %s AND index = %s", [short, index])
-        # return "redirect url: [%s]" % (url)
+        res = self.pg.getOne("SELECT id, url FROM urls WHERE short = %s AND index = %s", [short, index])
+        if res is None:
+            return "invalid url: [%s]" % (args[0])
+        url_id, url = res
+        
+        self.pg.execute("INSERT INTO accesses(ip, url_id, ts) VALUES(%s, %s, extract(epoch from now()))", 
+                        [ip, url_id])
+                        
+        self.pg.execute("UPDATE urls SET last_accessed = extract(epoch from now()) WHERE id = %s", [url_id])
+        
         raise cherrypy.HTTPRedirect(url)
         
 config = eval(open('config.py', 'rb').read())

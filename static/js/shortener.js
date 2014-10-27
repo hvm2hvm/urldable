@@ -41,10 +41,10 @@ function do_shorten() {
         dataType: "html",
         success: function(data) {
             $("#results").html(data);
-            $("#title").html("Press CTRL+C");
+            $("#title").html("Press CTRL+C to copy the short URL");
         },
-        error: function() {
-            $("#results").html("<span>There was an error with the request</span>");
+        error: function(data, text, error) {
+            $("#results").html("<span>There was an error with the request: " + error + " </span>");
         }
     });
 }

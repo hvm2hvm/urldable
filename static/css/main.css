@@ -1,9 +1,9 @@
 body {
-    background-color: #7be;
+    background-color: #1e6;
 }
 
 input[type=text] {
-    border: solid 2px #87f;
+    border: solid 2px #8f7;
     border-radius: 5px;
     height: 46px;
     font-size: 30px;
@@ -11,7 +11,7 @@ input[type=text] {
 }
 
 button {
-    border: solid 2px #87f;
+    border: solid 2px #8f7;
     border-radius: 5px;
     height: 46px;
     font-size: 24px;
