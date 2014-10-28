@@ -61,8 +61,8 @@ class URLShortener(object):
         if not index:
             index = 0
             
-        if self.pg.execute('''INSERT INTO urls(short, "index", url, last_accessed)
-                            VALUES (%s, %s, %s, extract(epoch from now()))
+        if self.pg.execute('''INSERT INTO urls(short, "index", url, last_accessed, creation_ts)
+                            VALUES (%s, %s, %s, extract(epoch from now()), extract(epoch from now()))
                         ''', [short, index+1, url]):
             return compose_url(short, index+1)
         else:
@@ -97,18 +97,30 @@ class URLShortener(object):
     def _stats(self):
         url_count = self.pg.get("SELECT count(url) FROM urls")
         access_count = self.pg.get("SELECT count(*) FROM accesses")
-        unique_ip_count = self.pg.get("SELECT count(ip) FROM accesses")
+        unique_ip_count = self.pg.get("SELECT count(distinct ip) FROM accesses")
+        
+        url_count_24h = self.pg.get("""
+            SELECT count(url) FROM urls WHERE creation_ts > extract(epoch from now()) - 86400
+            """)
+        access_count_24h = self.pg.get("""
+            SELECT count(*) FROM accesses WHERE ts > extract(epoch from now()) - 86400
+            """)
+        unique_ip_count_24h = self.pg.get("""
+            SELECT count(distinct ip) FROM accesses WHERE ts > extract(epoch from now()) - 86400
+            """)
         return """
             <html>
                 <head>
                 </head>
                 <body>
-                    <span>Number of URLs shortened: %d</span><br />
-                    <span>Number of accesses: %d</span><br />
-                    <span>Number of unique IPs: %d</span><br />
+                    <span>Number of URLs shortened: %d (%d in the last 24h)</span><br />
+                    <span>Number of accesses: %d (%d in the last 24h)</span><br />
+                    <span>Number of unique IPs: %d (%d in the last 24h)</span><br />
                 </body>
             </html>
-        """ % (url_count, access_count, unique_ip_count)
+        """ % (url_count, url_count_24h, 
+               access_count, access_count_24h, 
+               unique_ip_count, unique_ip_count_24h)
         
     @cherrypy.expose
     def shorten(self, url):

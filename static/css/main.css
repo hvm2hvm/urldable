@@ -15,7 +15,6 @@ button {
     border-radius: 5px;
     height: 46px;
     font-size: 24px;
-    
 }
 
 #urlbox {
@@ -49,6 +48,12 @@ button {
 }
 
 #short {
-    color: #f00;
+    color: #F13;
     font-size: 24px;
+}
+
+#short::-moz-selection {
+    border-radius: 2px;
+    background-color: #020;
+    color: #ccf;
 }
