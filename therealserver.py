@@ -27,7 +27,7 @@ class URLShortener(object):
         # self.lock = threading.Lock()
 
     def _limit_requests(self, location):
-        ip = cherrypy.request.headers['X-Forwarded-For']
+        ip = self._get_ip()
         ts = int(time.time())
         
         limit = self.limit_values[location]
@@ -42,11 +42,18 @@ class URLShortener(object):
                 raise cherrypy.HTTPError(400, message="Too many requests, try again later...")
         else:
             data[ip] = [ts]
+            
+    def _get_ip(self):
+        if 'X-Forwarded-For' in cherrypy.request.headers:
+            return cherrypy.request.headers['X-Forwarded-For']
+        else:
+            return cherrypy.request.remote.ip
 
     def _shorten(self, url):
         self._limit_requests('_shorten_existing')
     
         url = format_url(url)
+        
         # if url exists use existing shortened url
         existing = self.pg.getOne("SELECT short, index FROM urls WHERE url=%s", [url])
         if existing:
@@ -152,7 +159,7 @@ class URLShortener(object):
         
     @cherrypy.expose
     def default(self, *args):
-        ip = cherrypy.request.headers['X-Forwarded-For']
+        ip = self._get_ip()
         self._limit_requests('_access')
     
         if len(args) > 1:
@@ -173,6 +180,13 @@ class URLShortener(object):
         self.pg.execute("UPDATE urls SET last_accessed = extract(epoch from now()) WHERE id = %s", [url_id])
         
         raise cherrypy.HTTPRedirect(url)
+        # return """
+            # <html>
+                # <head>
+                    # <meta http-equiv="Refresh" content="0; url=%s" />
+                # </head>
+            # </html>
+        # """ % (url)
         
 config = eval(open('config.py', 'rb').read())
 
