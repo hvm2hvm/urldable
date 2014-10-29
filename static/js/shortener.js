@@ -50,6 +50,8 @@ function do_shorten() {
 }
 
 $(document).ready(function() {
+    $("#urlbox").val("");
+    
     $("body").keydown(function(e){
         // $("#urlbox").focus();
         // $("#urlbox").val("");
