@@ -1,6 +1,8 @@
 body {
     /* background-color: #1b3; */
-    background-color: #3ed057;
+    /* background-color: #3ed057; */
+    background-color: #511;
+    color: #ccf;
 }
 
 input[type=text] {
@@ -56,5 +58,5 @@ button {
 #short::-moz-selection {
     border-radius: 2px;
     background-color: #020;
-    color: #ccf;
+    color: #cfc;
 }
