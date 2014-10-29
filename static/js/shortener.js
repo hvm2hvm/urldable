@@ -56,17 +56,17 @@ $(document).ready(function() {
         // $("#urlbox").focus();
         // $("#urlbox").val("");
         console.log("down: " + e.which + " " + e.ctrlKey);
-        if (e.which == 86 && e.ctrlKey) { // CTRL+V
+        if (e.which == 86 && (e.ctrlKey || e.metaKey)) { // CTRL+V
             $("#urlbox").focus();
             $("#urlbox").val("");
         }
     });
     $("body").keypress(function(e) {
-        console.log("press: " + e.which + " " + e.ctrlKey);
+        console.log("press: " + e.which + " " + e.ctrlKey + " " + e.metaKey);
     });
     $("body").keyup(function(e){
         console.log("up: " + e.which + " " + e.ctrlKey);
-        if (e.which == 86 && e.ctrlKey) { // CTRL+V
+        if (e.which == 86 && (e.ctrlKey || e.metaKey)) { // CTRL+V
             do_shorten();
         } else if (e.which == 67 && e.ctrlKey) {
             $("#title").html("You can now use the short URL <br />CTRL+V again for a new link");
