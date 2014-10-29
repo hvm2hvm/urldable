@@ -1,9 +1,10 @@
 body {
-    background-color: #1e6;
+    /* background-color: #1b3; */
+    background-color: #3ed057;
 }
 
 input[type=text] {
-    border: solid 2px #8f7;
+    border: solid 2px #182;
     border-radius: 5px;
     height: 46px;
     font-size: 30px;
@@ -18,7 +19,7 @@ button {
 }
 
 #urlbox {
-    width: 300px;
+    width: 400px;
 }
 
 #button {

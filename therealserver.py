@@ -91,7 +91,7 @@ class URLShortener(object):
                 </div> <br />
                 <div id="query">
                     <input type="text" name="url" id="urlbox" />
-                    <button name="shorten" id="button" onclick="do_shorten()">shorten</button>
+                    <!-- <button name="shorten" id="button" onclick="do_shorten()">shorten</button> -->
                 </div> <br />
                 <div id="results">
                 </div>
