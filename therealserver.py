@@ -1,3 +1,8 @@
+import os, sys
+
+here = os.path.dirname(__file__)
+sys.path.append(here)
+
 import cherrypy
 import random
 import psycopg2
@@ -180,14 +185,10 @@ class URLShortener(object):
         self.pg.execute("UPDATE urls SET last_accessed = extract(epoch from now()) WHERE id = %s", [url_id])
         
         raise cherrypy.HTTPRedirect(url)
-        # return """
-            # <html>
-                # <head>
-                    # <meta http-equiv="Refresh" content="0; url=%s" />
-                # </head>
-            # </html>
-        # """ % (url)
         
-config = eval(open('config.py', 'rb').read())
+config_fp = os.path.join(here, 'config.py')
+cp_conf_fp = os.path.join(here, 'cherrypy.conf')
+        
+config = eval(open(config_fp, 'rb').read())
 
-cherrypy.quickstart(URLShortener(config), config="cherrypy.conf")
+application = cherrypy.Application(URLShortener(config), config=cp_conf_fp, script_name=None)
