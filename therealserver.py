@@ -12,6 +12,7 @@ import threading
 import time
 
 from liburldable import compose_url, decompose_url, create_word, format_url
+from libutils import is_mobile_ua
 
 class URLShortener(object):
     def __init__(self, config):
