@@ -10,6 +10,7 @@ import libpg
 import re
 import threading
 import time
+import urlparse
 
 from liburldable import compose_url, decompose_url, create_word, format_url
 from libutils import is_mobile_ua
@@ -179,6 +180,8 @@ class URLShortener(object):
         if res is None:
             return "invalid url: [%s]" % (args[0])
         url_id, url = res
+        if not url.startswith('http://') and not url.startswith('data:image'):
+            url = 'http://' + url
         
         self.pg.execute("INSERT INTO accesses(ip, url_id, ts) VALUES(%s, %s, extract(epoch from now()))", 
                         [ip, url_id])
