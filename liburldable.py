@@ -3,7 +3,7 @@ import re
 
 vowels = "aeiou"
 consonants = "bcdfgjklmnprstvz"
-joinable_consonants = "bcdfgkpt" # can be followed by 'l' or 'r'
+joinable_consonants = "bfgkp" # can be followed by 'l' or 'r'
 # joinable_syllables = "" # can be joined but in different syllables (kloNDike)
 
 def create_word():
