@@ -7,6 +7,8 @@ joinable_consonants = "bfgkp" # can be followed by 'l' or 'r'
 # joinable_syllables = "" # can be joined but in different syllables (kloNDike)
 
 def create_word():
+    random.seed()
+
     two_start_cons = random.random() > 0.5
     ends_in_vowel = random.random() > 0.5
     
