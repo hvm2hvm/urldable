@@ -44,9 +44,17 @@ function do_shorten() {
             $("#title").html("Press CTRL+C to copy the short URL");
         },
         error: function(data, text, error) {
-            $("#results").html("<span>There was an error with the request: " + error + " </span>");
+            $("#results").html("<span>There was an error with the request: {0} </span>".format(error));
         }
     });
+}
+
+function short_url_ready() {
+    $("#short").hover(function(){
+        SelectText("short");
+    });
+    SelectText("short");
+    $("#urlbox").blur();
 }
 
 $(document).ready(function() {
@@ -55,17 +63,17 @@ $(document).ready(function() {
     $("body").keydown(function(e){
         // $("#urlbox").focus();
         // $("#urlbox").val("");
-        console.log("down: " + e.which + " " + e.ctrlKey);
+        console.log("down: {0} {1}".format(e.which, e.ctrlKey));
         if (e.which == 86 && (e.ctrlKey || e.metaKey)) { // CTRL+V
             $("#urlbox").focus();
             $("#urlbox").val("");
         }
     });
     $("body").keypress(function(e) {
-        console.log("press: " + e.which + " " + e.ctrlKey + " " + e.metaKey);
+        console.log("press: {0} {1} {2}".format(e.which, e.ctrlKey, e.metaKey));
     });
     $("body").keyup(function(e){
-        console.log("up: " + e.which + " " + e.ctrlKey);
+        console.log("up: {0} {1}".format(e.which, e.ctrlKey));
         if (e.which == 86 && (e.ctrlKey || e.metaKey)) { // CTRL+V
             do_shorten();
         } else if (e.which == 67 && e.ctrlKey) {

@@ -84,29 +84,53 @@ class URLShortener(object):
     
     @cherrypy.expose
     def index(self, **kargs):
-        return """
-        <html>
-        <head>
-            <script src="/static/js/jquery-min.js"></script>
-            <script src="/static/js/shortener.js"></script>
-            <link rel="stylesheet" type="text/css" href="/static/css/main.css">
-        </head>
-        <body>
-            <div id="central">
-                <div id="title">
-                    <span>Press CTRL+V to shorten your URL</span><br />
-                </div> <br />
-                <div id="query">
-                    <input type="text" name="url" id="urlbox" />
-                    <!-- <button name="shorten" id="button" onclick="do_shorten()">shorten</button> -->
-                </div> <br />
-                <div id="results">
+        ua = cherrypy.request.headers['User-Agent']
+        if is_mobile_ua(ua):
+            return """
+            <html>
+            <head>
+                <script src="/static/js/jquery-min.js"></script>
+                <script src="/static/js/shortener-mobile.js"></script>
+                <link rel="stylesheet" type="text/css" href="/static/css/main-mobile.css">
+            </head>
+            <body>
+                <div id="central">
+                    <div id="title">
+                        <span>Paste the URL in the box below</span><br />
+                    </div> <br />
+                    <div id="query">
+                        <input type="text" name="url" id="urlbox" />
+                        <button id="shorten_button" name="shorten"> shorten </button>
+                    </div> <br />
+                    <div id="results">
+                    </div>
                 </div>
-            </div>
-        </body>
-        </html>
-        """
+            </html>
+            """
+        else:
+            return """
+            <html>
+            <head>
+                <script src="/static/js/jquery-min.js"></script>
+                <script src="/static/js/shortener.js"></script>
+                <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+            </head>
+            <body>
+                <div id="central">
+                    <div id="title">
+                        <span>Press CTRL+V to shorten your URL</span><br />
+                    </div> <br />
+                    <div id="query">
+                        <input type="text" name="url" id="urlbox" />
+                    </div> <br />
+                    <div id="results">
+                    </div>
+                </div>
+            </body>
+            </html>
+            """
         
+    
     @cherrypy.expose
     def _stats(self):
         url_count = self.pg.get("SELECT count(url) FROM urls")
@@ -153,14 +177,9 @@ class URLShortener(object):
                     <span id=\"short\" title="you can copy now">http://%s/%s</span> 
                 ] <br />
                 from url [ %s ].<br/>
-                (hover over url to select it)
             </span>
             <script>
-                $("#short").hover(function(){
-                    SelectText("short");
-                });
-                SelectText("short");
-                $("#urlbox").blur();
+                short_url_ready();
             </script>
         """ % (self.config['server']['hostname'], short, url)
         
@@ -190,9 +209,13 @@ class URLShortener(object):
         
         raise cherrypy.HTTPRedirect(url)
         
-config_fp = os.path.join(here, 'config.py')
-cp_conf_fp = os.path.join(here, 'cherrypy.conf')
-        
-config = eval(open(config_fp, 'rb').read())
+def application(environ, start_response):
+    config_fp = os.path.join(here, 'config.py')
+    config = eval(open(config_fp, 'rb').read())
 
-application = cherrypy.Application(URLShortener(config), config=cp_conf_fp, script_name=None)
+    main_conf_fp = os.path.join(here, 'cherrypy.conf')
+    
+    cherrypy.tree.mount(URLShortener(config), "/", main_conf_fp)
+    
+    return cherrypy.tree(environ, start_response)
+    
