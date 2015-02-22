@@ -36,7 +36,8 @@ function do_shorten() {
     $.ajax("/shorten", {
         type: "POST",
         data: {
-            url: url
+            url: url,
+            format: "html"
         },
         dataType: "html",
         success: function(data) {

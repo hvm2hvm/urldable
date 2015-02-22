@@ -3,6 +3,7 @@ import os, sys
 here = os.path.dirname(__file__)
 sys.path.append(here)
 
+import json
 import cherrypy
 import random
 import psycopg2
@@ -161,7 +162,7 @@ class URLShortener(object):
                unique_ip_count, unique_ip_count_24h)
         
     @cherrypy.expose
-    def shorten(self, url):
+    def shorten(self, url, format):
         short = self._shorten(url)
         
         if short is None:
@@ -171,17 +172,21 @@ class URLShortener(object):
         
         if len(url) > 30:
             url = url[:17] + "..." + url[-10:]
-        
-        return """
-            <span id="result">Shortened to [
-                    <span id=\"short\" title="you can copy now">http://%s/%s</span> 
-                ] <br />
-                from url [ %s ].<br/>
-            </span>
-            <script>
-                short_url_ready();
-            </script>
-        """ % (self.config['server']['hostname'], short, url)
+        if format == "html":
+            return """
+                <span id="result">Shortened to [
+                        <span id=\"short\" title="you can copy now">http://%s/%s</span> 
+                    ] <br />
+                    from url [ %s ].<br/>
+                </span>
+                <script>
+                    short_url_ready();
+                </script>
+            """ % (self.config['server']['hostname'], short, url)
+        elif format == "json":
+            return json.dumps({
+                "short": short,
+            })
         
     @cherrypy.expose
     def default(self, *args):
