@@ -87,8 +87,11 @@ class URLShortener(object):
     def index(self, **kargs):
         ua = cherrypy.request.headers['User-Agent']
         return """
-            <html>
-            <head>
+            <!DOCTYPE html 
+                PUBLIC "-//W3C//DTD HTML 4.01//EN"
+                "http://www.w3.org/TR/html4/strict.dtd">
+            <html lang="en-US">
+            <head profile="http://www.w3.org/2005/10/profile">
                 <script src="/static/js/jquery-min.js"></script>
                 <script src="/static/js/shortener.js"></script>
                 <link rel="stylesheet" type="text/css" href="/static/css/main.css">
