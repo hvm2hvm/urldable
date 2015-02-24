@@ -87,15 +87,11 @@ class URLShortener(object):
     def index(self, **kargs):
         ua = cherrypy.request.headers['User-Agent']
         return """
-            <!DOCTYPE html 
-                PUBLIC "-//W3C//DTD HTML 4.01//EN"
-                "http://www.w3.org/TR/html4/strict.dtd">
-            <html lang="en-US">
-            <head profile="http://www.w3.org/2005/10/profile">
+            <html>
+            <head>
                 <script src="/static/js/jquery-min.js"></script>
                 <script src="/static/js/shortener.js"></script>
                 <link rel="stylesheet" type="text/css" href="/static/css/main.css">
-                <link rel="icon" type="image/png" href="static/img/small-icon.png">
             </head>
             <body>
                 <div id="central">
@@ -168,6 +164,10 @@ class URLShortener(object):
             return json.dumps({
                 "short": short,
             })
+            
+    @cherrypy.expose
+    def favicon_ico(self):
+        raise cherrypy.HTTPRedirect("/static/img/small-icon.png")
         
     @cherrypy.expose
     def default(self, *args):
@@ -199,9 +199,15 @@ def application(environ, start_response):
     config_fp = os.path.join(here, 'config.py')
     config = eval(open(config_fp, 'rb').read())
 
-    main_conf_fp = os.path.join(here, 'cherrypy.conf')
+    cp_conf = {
+        'global': {
+            'server.socket_port': config.get('socket_port', 8000),
+            'server.max_request_body_size': config.get('max_request_body_size', 1048576),
+            'environment': config.get('environment', 'development'),
+        },
+    }
     
-    cherrypy.tree.mount(URLShortener(config), "/", main_conf_fp)
+    cherrypy.tree.mount(URLShortener(config), "/", cp_conf)
     
     return cherrypy.tree(environ, start_response)
     
