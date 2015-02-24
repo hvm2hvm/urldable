@@ -2,7 +2,7 @@ body {
     /* background-color: #1b3; */
     /* background-color: #3ed057; */
     background-color: #511;
-    color: #ccf;
+    color: #D44;
 }
 
 input[type=text] {
@@ -20,6 +20,19 @@ button {
     font-size: 24px;
 }
 
+a {
+    text-decoration: none;
+    color: #77E;
+}
+
+a:hover {
+    color: #99E;
+}
+
+a:active {
+    color: #EE2A2A;
+}
+
 #urlbox {
     width: 400px;
 }
@@ -34,6 +47,13 @@ button {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%)
+}
+
+#footer {
+    position: absolute;
+    top: 90%;
+    left: 50%;
+    transform: translate(-50%, -10%)
 }
 
 #title {

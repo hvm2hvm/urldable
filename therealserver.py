@@ -104,6 +104,10 @@ class URLShortener(object):
                     <div id="results">
                     </div>
                 </div>
+                <div id="footer">
+                    <a href="/privacy_policy">Privacy policy</a> | 
+                    <a href="/android_app">Android app</a>
+                </div>
             </body>
             </html>
             """
@@ -137,6 +141,36 @@ class URLShortener(object):
         """ % (url_count, url_count_24h, 
                access_count, access_count_24h, 
                unique_ip_count, unique_ip_count_24h)
+        
+    @cherrypy.expose
+    def privacy_policy(self):
+        return """
+            <html>
+            <head>
+                <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+            </head>
+            <body>
+                <div id="central">
+                <span id="title">The policy of hvm.pw is that shortened URLs are considered public. Do not share URLs that contain private data not meant for anyone.</span>
+                </div>
+            </body>
+            </html>
+        """
+        
+    @cherrypy.expose
+    def android_app(self):
+        return """
+            <html>
+            <head>
+                <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+            </head>
+            <body>
+                <div id="central">
+                <span id="title">There is an android app waiting for approval, link will be up shortly.</span>
+                </div>
+            </body>
+            </html>
+        """
         
     @cherrypy.expose
     def shorten(self, url, format):
