@@ -95,9 +95,7 @@ class URLShortener(object):
                 <script src="/static/js/jquery-min.js"></script>
                 <script src="/static/js/shortener.js"></script>
                 <link rel="stylesheet" type="text/css" href="/static/css/main.css">
-                <link rel="icon" 
-                    type="image/png" 
-                    href="/static/img/small-icon.png">
+                <link rel="icon" type="image/png" href="static/img/small-icon.png">
             </head>
             <body>
                 <div id="central">
