@@ -86,35 +86,15 @@ class URLShortener(object):
     @cherrypy.expose
     def index(self, **kargs):
         ua = cherrypy.request.headers['User-Agent']
-        if is_mobile_ua(ua):
-            return """
-            <html>
-            <head>
-                <script src="/static/js/jquery-min.js"></script>
-                <script src="/static/js/shortener-mobile.js"></script>
-                <link rel="stylesheet" type="text/css" href="/static/css/main-mobile.css">
-            </head>
-            <body>
-                <div id="central">
-                    <div id="title">
-                        <span>Paste the URL in the box below</span><br />
-                    </div> <br />
-                    <div id="query">
-                        <input type="text" name="url" id="urlbox" />
-                        <button id="shorten_button" name="shorten"> shorten </button>
-                    </div> <br />
-                    <div id="results">
-                    </div>
-                </div>
-            </html>
-            """
-        else:
-            return """
+        return """
             <html>
             <head>
                 <script src="/static/js/jquery-min.js"></script>
                 <script src="/static/js/shortener.js"></script>
                 <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+                <link rel="icon" 
+                    type="image/png" 
+                    href="/static/img/small-icon.png">
             </head>
             <body>
                 <div id="central">
