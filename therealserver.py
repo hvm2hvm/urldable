@@ -12,6 +12,7 @@ import re
 import threading
 import time
 import urlparse
+import hashlib
 
 from liburldable import compose_url, decompose_url, create_word, format_url
 from libutils import is_mobile_ua
@@ -97,6 +98,7 @@ class URLShortener(object):
                 <div id="central">
                     <div id="title">
                         <span>Press CTRL+V to shorten your URL</span><br />
+                        <span>Or upload a file by dropping it</span>
                     </div> <br />
                     <div id="query">
                         <input type="text" name="url" id="urlbox" />
@@ -106,7 +108,9 @@ class URLShortener(object):
                 </div>
                 <div id="footer">
                     <a href="/privacy_policy">Privacy policy</a> | 
-                    <a href="https://play.google.com/store/apps/details?id=com.voicuhodrea.urldable">Android app</a>
+                    <a href="https://play.google.com/store/apps/details?id=com.voicuhodrea.urldable">Android app</a> |
+                    <a href="">Desktop app</a> |
+                    <a href="">Console tool</a>
                 </div>
             </body>
             </html>
@@ -183,6 +187,23 @@ class URLShortener(object):
             return json.dumps({
                 "short": short,
             })
+            
+    @cherrypy.expose
+    def _upload(self, file, format):
+        buffer_size = 8192
+        md5 = hashlib.md5()
+        outfile = open(os.path.join(os.getcwd(), 'files', 'temp-%5.2f-%05d' % (time.time(), random.randint(0,100000))), 'wb')
+        while True:
+            data = file.file.read(buffer_size)
+            if not data:
+                break
+            md5.update(data)
+            outfile.write(data)
+            
+        md5_str = md5.hexdigest()
+        outfile.close()
+        
+        return "md5 is %s" % (md5_str)
             
     @cherrypy.expose
     def favicon_ico(self):

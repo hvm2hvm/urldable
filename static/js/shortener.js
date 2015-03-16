@@ -82,4 +82,52 @@ $(document).ready(function() {
         }
     });
     
+    $(document).on(
+        'dragover',
+        function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    );
+    $(document).on(
+        'dragenter',
+        function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    );
+    $(document).on(
+        'drop',
+        function(e) {
+            if(e.originalEvent.dataTransfer) {
+                if(e.originalEvent.dataTransfer.files.length) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    upload(e.originalEvent.dataTransfer.files);
+                }
+            }
+        }
+    );
+    
 });
+
+function upload(files) {
+    if (files.length == 1) {
+        var fd = new FormData();
+        fd.append("file", files[0]);
+        // fd.append("format", "html");
+        $.ajax("/_upload", {
+                type: "POST",
+                data: fd,
+                success: function(data) {
+                    $("#results").html(data);
+                    $("#title").html("Press CTRL+C to copy the short URL");
+                },
+                error: function(data, text, error) {
+                    $("#results").html("<span>There was an error with the request: {0} </span>".format(error));
+                }
+            }
+        );
+    }
+}

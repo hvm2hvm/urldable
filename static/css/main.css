@@ -20,6 +20,7 @@ button {
     font-size: 24px;
 }
 
+/*
 a {
     text-decoration: none;
     color: #77E;
@@ -31,6 +32,19 @@ a:hover {
 
 a:active {
     color: #EE2A2A;
+}
+*/
+a {
+    text-decoration: none;
+    color: #D44;
+}
+
+a:hover {
+    color: #E66;
+}
+
+a:active {
+    color: #F77;
 }
 
 #urlbox {
