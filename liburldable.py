@@ -37,6 +37,9 @@ def format_url(url):
     start_index = 0
     if url.lower().startswith('http://'):
         start_index = 7
+    elif url.lower().startswith('https://'):
+        start_index = 8
+        
     end_index = url.find("/", start_index)
     return url[:end_index].lower() + url[end_index:]
     
