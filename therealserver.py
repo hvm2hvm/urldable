@@ -210,7 +210,7 @@ class URLShortener(object):
         raise cherrypy.HTTPRedirect("/static/img/small-icon.png")
         
     @cherrypy.expose
-    def default(self, *args):
+    def default(self, *args, **kargs):
         ip = self._get_ip()
         self._limit_requests('_access')
     
