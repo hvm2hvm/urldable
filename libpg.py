@@ -1,3 +1,4 @@
+import threading
 import psycopg2
 import psycopg2.extras
 
@@ -8,10 +9,11 @@ def log(*args):
 
 class PG(object):
 
-    def __init__(self, **kargs):
+    def __init__(self, uselocks=True, **kargs):
         """
             available parameters:
                 user, host, password, database/dbname
+                uselocks: lock requests s.t. only 1 operation is allowed per connection
         """
         
         self.params = {
@@ -26,7 +28,11 @@ class PG(object):
         if 'database' in self.params:
             self.params['dbname'] = self.params['database']
             del self.params['database']
-            
+        
+        self.uselocks = uselocks
+        if uselocks:
+            self.lock = threading.Lock()
+        
         self.connect()
         
     def connect(self):
@@ -48,24 +54,31 @@ class PG(object):
                 self.params['host'], self.params['port'], e))
         
     def execute(self, query, params, commit=1):
-        retries = 3
-        while True:
-            try:
-                self.cur.execute(query, params)
-                if commit:
-                    self.conn.commit()
-                return True
-            except Exception as e:
-                retries -= 1
-                if retries <= 0:
-                    break
-                log("query failed: [%s] with params %s" % (query, params))
-                log("   exception: %s" % (e))
-                log("retrying, %d attempts left" % (retries))
-                self.connect()
-                
-        log("failed after 3 retries")
-        return False
+        if self.uselocks:
+            self.lock.acquire()
+            
+        try:
+            retries = 3
+            while True:
+                try:
+                    self.cur.execute(query, params)
+                    if commit:
+                        self.conn.commit()
+                    return True
+                except Exception as e:
+                    retries -= 1
+                    if retries <= 0:
+                        break
+                    log("query failed: [%s] with params %s" % (query, params))
+                    log("   exception: %s" % (e))
+                    log("retrying, %d attempts left" % (retries))
+                    self.connect()
+                    
+            log("failed after 3 retries")
+            return False
+        finally:
+            if self.uselocks:
+                self.lock.release()
         
     def get(self, query, params=[], commit=1):
         row = self.execute(query, params, commit) and self.cur.fetchone()
