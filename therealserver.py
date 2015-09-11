@@ -18,9 +18,16 @@ from liburldable import compose_url, decompose_url, create_word, format_url
 from libutils import is_mobile_ua
 
 class URLShortener(object):
+
+    pg=None
+    
     def __init__(self, config):
         self.config = config
-        self.pg = libpg.PG(**config['pg'])
+        #self.pg = libpg.PG(**config['pg'])
+        if URLShortener.pg is None:
+            print "creating pg object"
+            URLShortener.pg = libpg.PG(**config['pg'])
+        self.pg = URLShortener.pg
         self.limit_data = {
             '_shorten_existing': {},
             '_shorten_new': {},
@@ -236,6 +243,8 @@ class URLShortener(object):
         raise cherrypy.HTTPRedirect(url)
         
 def application(environ, start_response):
+    print "application"
+    
     config_fp = os.path.join(here, 'config.py')
     config = eval(open(config_fp, 'rb').read())
 
@@ -250,4 +259,3 @@ def application(environ, start_response):
     cherrypy.tree.mount(URLShortener(config), "/", cp_conf)
     
     return cherrypy.tree(environ, start_response)
-    
